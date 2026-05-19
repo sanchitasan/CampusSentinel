@@ -15,8 +15,14 @@ const Chatbot: React.FC = () => {
     const [input, setInput] = useState<string>("");
     const [isMinimized, setIsMinimized] = useState<boolean>(false);
     const [isMaximized, setIsMaximized] = useState<boolean>(false);
-    const [iconPosition, setIconPosition] = useState({ x: window.innerWidth - 100, y: window.innerHeight - 100 });
+    const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
     const [chatPosition, setChatPosition] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setIconPosition({ x: window.innerWidth - 100, y: window.innerHeight - 100 });
+        }
+    }, []);
     const [isDraggingIcon, setIsDraggingIcon] = useState(false);
     const [isDraggingChat, setIsDraggingChat] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -102,8 +108,8 @@ const Chatbot: React.FC = () => {
 
     const handleMouseMove = (e: MouseEvent) => {
         if (isDraggingIcon) {
-            const newX = Math.max(0, Math.min(e.clientX - dragOffset.x, window.innerWidth - 80));
-            const newY = Math.max(0, Math.min(e.clientY - dragOffset.y, window.innerHeight - 80));
+            const newX = Math.max(0, Math.min(e.clientX - dragOffset.x, (typeof window !== "undefined" ? window.innerWidth : 1000) - 80));
+            const newY = Math.max(0, Math.min(e.clientY - dragOffset.y, (typeof window !== "undefined" ? window.innerHeight : 1000) - 80));
             setIconPosition({ x: newX, y: newY });
         }
 
@@ -145,7 +151,9 @@ const Chatbot: React.FC = () => {
 
         // Adjust if chat would go off-screen
         if (x < 0) x = iconPosition.x + 80 + 20;
-        if (y + chatHeight > window.innerHeight) y = window.innerHeight - chatHeight - 20;
+        if (typeof window !== "undefined") {
+            if (y + chatHeight > window.innerHeight) y = window.innerHeight - chatHeight - 20;
+        }
         if (y < 0) y = 20;
 
         setChatPosition({ x, y });
